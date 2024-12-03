@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 generic-array = "0.14"
+ring = "0.17.8"
 sha2 = { version = "0.10" }
 
 [dev-dependencies]

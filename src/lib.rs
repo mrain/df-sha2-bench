@@ -1,4 +1,5 @@
 use generic_array::arr;
+use ring::digest::SHA256;
 use sha2::{Digest, Sha256};
 use std::io::Write;
 
@@ -30,14 +31,26 @@ pub fn hash_chain3(num_iters: u64) -> [u8; 32] {
     beacon.into()
 }
 
+pub fn ring_hash_chain(num_iters: u64) -> [u8; 32] {
+    let mut beacon = [0u8; 32];
+    for _ in 0..num_iters {
+        beacon = ring::digest::digest(&SHA256, &beacon)
+            .as_ref()
+            .try_into()
+            .unwrap();
+    }
+    beacon
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::{hash_chain, hash_chain2, hash_chain3};
+    use crate::{hash_chain, hash_chain2, hash_chain3, ring_hash_chain};
 
     #[test]
     fn integrity_test() {
         let num_iters = 100;
         assert_eq!(hash_chain(num_iters), hash_chain2(num_iters));
         assert_eq!(hash_chain(num_iters), hash_chain3(num_iters));
+        assert_eq!(hash_chain(num_iters), ring_hash_chain(num_iters));
     }
 }
